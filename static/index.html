@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Human-in-the-Loop Web Testing Assistant — Phase 1</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-title">
+      <h1>Human-in-the-Loop Web Testing Assistant</h1>
+      <span class="badge badge-phase">Phase 1 · Guided Inspection</span>
+    </div>
+    <div class="topbar-meta" id="runtime-badges">
+      <span class="badge badge-muted" id="badge-model">Model: loading...</span>
+      <span class="badge badge-muted" id="badge-key">API Key: checking...</span>
+      <span class="badge badge-info">Runner: Isolated Subprocess</span>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Global status / error banner -->
+    <div id="status-banner" class="banner hidden" role="status"></div>
+
+    <!-- PANEL 1: GUIDED INSPECTION (DETERMINISTIC PLAYWRIGHT SUBPROCESS) -->
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <h2>1. Guided Page Inspection <span class="step-tag">Playwright Only · No LLM</span></h2>
+          <p class="subtitle">Opens a visible Chromium window in an isolated child process, extracts interactive DOM elements, and verifies Playwright locator uniqueness.</p>
+        </div>
+        <div class="header-actions">
+          <select id="history-select" aria-label="Load saved inspection">
+            <option value="">Load saved inspection...</option>
+          </select>
+          <button id="btn-export-inspection" class="btn btn-secondary" disabled>Export Inspection JSON</button>
+        </div>
+      </div>
+
+      <form id="inspect-form" class="inspect-grid">
+        <label class="field field-url">
+          <span>Target URL (http / https)</span>
+          <input
+            id="url-input"
+            type="url"
+            required
+            placeholder="https://webdriveruniversity.com/Login-Portal/index.html"
+          />
+        </label>
+
+        <label class="field field-scope">
+          <span>Refine Scope (optional CSS selector)</span>
+          <input
+            id="scope-input"
+            type="text"
+            placeholder="e.g. form, #login-form, main"
+          />
+        </label>
+
+        <label class="checkbox-field">
+          <input id="visible-only-input" type="checkbox" checked />
+          <span>Visible elements only</span>
+        </label>
+
+        <button id="btn-inspect" type="submit" class="btn btn-primary">Inspect Page</button>
+      </form>
+
+      <div id="inspection-meta" class="meta-strip hidden">
+        <div><strong>Source Page:</strong> <a id="meta-url" href="#" target="_blank" rel="noopener noreferrer"></a></div>
+        <div><strong>Title:</strong> <span id="meta-title"></span></div>
+        <div><strong>Scope:</strong> <code id="meta-scope"></code></div>
+        <div><strong>Elements:</strong> <span id="meta-count"></span></div>
+        <div class="metric-pill metric-browser">
+          <strong>Browser Inspection Time:</strong> <span id="meta-browser-ms">—</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANEL 2: STRUCTURED OBSERVED ELEMENTS + SCREENSHOT WITH HIGHLIGHT BOXES -->
+    <section id="findings-section" class="card hidden">
+      <div class="card-header">
+        <div>
+          <h2>2. Observed Interactive Elements &amp; Scope Selection <span class="step-tag">Human-in-the-Loop</span></h2>
+          <p class="subtitle">Filter and select the exact elements you want Gemini to analyze. Hover or check rows to highlight them on the captured page screenshot.</p>
+        </div>
+        <div class="header-actions">
+          <span id="selected-counter" class="badge badge-primary">0 selected</span>
+        </div>
+      </div>
+
+      <div class="split-layout">
+        <!-- Left: Filterable Element Table -->
+        <div class="pane-table">
+          <div class="table-toolbar">
+            <input id="element-search" type="search" placeholder="Search ID, label, text, placeholder, locator..." />
+            <div class="tag-filters" id="tag-filters">
+              <button type="button" class="pill active" data-tag="all">All</button>
+              <button type="button" class="pill" data-tag="input">input</button>
+              <button type="button" class="pill" data-tag="button">button</button>
+              <button type="button" class="pill" data-tag="a">a</button>
+              <button type="button" class="pill" data-tag="select">select</button>
+              <button type="button" class="pill" data-tag="textarea">textarea</button>
+            </div>
+            <div class="bulk-actions">
+              <button type="button" id="btn-select-visible" class="btn btn-sm btn-secondary">Select Visible</button>
+              <button type="button" id="btn-clear-selection" class="btn btn-sm btn-secondary">Clear</button>
+            </div>
+          </div>
+
+          <div class="table-scroll">
+            <table class="elements-table">
+              <thead>
+                <tr>
+                  <th class="col-check"></th>
+                  <th class="col-id">ID</th>
+                  <th class="col-tag">Element</th>
+                  <th class="col-attrs">Observed Label &amp; Attributes</th>
+                  <th class="col-loc">Validated Playwright Locator</th>
+                </tr>
+              </thead>
+              <tbody id="elements-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Right: Captured Screenshot + Dynamic Highlight Boxes -->
+        <div class="pane-screenshot">
+          <div class="screenshot-toolbar">
+            <strong>Captured Page Screenshot</strong>
+            <label class="checkbox-inline">
+              <input id="toggle-boxes" type="checkbox" checked />
+              <span>Highlight boxes</span>
+            </label>
+          </div>
+          <div class="screenshot-viewport">
+            <div id="screenshot-stage" class="screenshot-stage">
+              <img id="page-screenshot" alt="Inspected webpage screenshot" />
+              <div id="highlight-layer" class="highlight-layer"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANEL 3: TESTING GOAL + GROUNDED GEMINI ANALYSIS + TELEMETRY -->
+    <section id="analysis-section" class="card hidden">
+      <div class="card-header">
+        <div>
+          <h2>3. Testing Goal &amp; Grounded Model Analysis <span class="step-tag">Gemini Free-Tier API</span></h2>
+          <p class="subtitle">Sends ONLY your selected observed elements (wrapped as untrusted webpage data) plus your testing goal to Gemini.</p>
+        </div>
+        <div class="header-actions">
+          <button id="btn-export-telemetry" class="btn btn-secondary">Export Usage/Timing Evidence</button>
+        </div>
+      </div>
+
+      <form id="analyze-form" class="analyze-form">
+        <div class="analyze-inputs">
+          <label class="field">
+            <span>Testing Goal (required)</span>
+            <textarea
+              id="goal-input"
+              rows="2"
+              required
+              placeholder="e.g. Verify that submitting invalid login credentials displays an error alert and does not log the user in."
+            ></textarea>
+          </label>
+          <label class="field">
+            <span>Optional Requirements / Expected Behavior Notes</span>
+            <textarea
+              id="notes-input"
+              rows="2"
+              placeholder="e.g. Expected alert text contains 'validation failed'. Leave empty to see the assistant ask for clarification."
+            ></textarea>
+          </label>
+        </div>
+
+        <div class="analyze-actions">
+          <label class="checkbox-inline">
+            <input id="force-fresh-input" type="checkbox" />
+            <span>Force fresh model call (bypass identical cached result)</span>
+          </label>
+          <button id="btn-analyze" type="submit" class="btn btn-primary">Analyze Selected Elements</button>
+        </div>
+      </form>
+
+      <!-- Telemetry & Feasibility Strip -->
+      <div id="telemetry-panel" class="telemetry-panel hidden">
+        <div class="telemetry-grid">
+          <div class="stat-box stat-browser">
+            <span class="stat-label">Browser Inspection Time</span>
+            <strong id="stat-browser-ms">—</strong>
+            <span class="stat-note">Deterministic Playwright</span>
+          </div>
+          <div class="stat-box stat-model">
+            <span class="stat-label">Model Response Time</span>
+            <strong id="stat-model-ms">—</strong>
+            <span class="stat-note" id="stat-call-mode">—</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Model / Provider Version</span>
+            <strong id="stat-model-ver">—</strong>
+            <span class="stat-note" id="stat-config-model">—</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Token Usage</span>
+            <strong id="stat-tokens">—</strong>
+            <span class="stat-note" id="stat-token-source">—</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Avg Model Time (Fresh)</span>
+            <strong id="stat-avg-ms">—</strong>
+            <span class="stat-note" id="stat-avg-counts">—</span>
+          </div>
+        </div>
+
+        <div id="groundedness-banner" class="banner"></div>
+
+        <!-- Structured Grounded Model Output -->
+        <div class="analysis-grid">
+          <div class="result-card result-full">
+            <h3>Grounded Summary</h3>
+            <p id="out-summary"></p>
+          </div>
+
+          <div class="result-card">
+            <h3>Observed Element Facts</h3>
+            <ul id="out-observations" class="result-list"></ul>
+          </div>
+
+          <div class="result-card">
+            <h3>Suggested Next Actions</h3>
+            <ul id="out-actions" class="result-list"></ul>
+          </div>
+
+          <div class="result-card">
+            <h3>Assumptions &amp; Missing Business Rules</h3>
+            <ul id="out-assumptions" class="result-list"></ul>
+          </div>
+
+          <div class="result-card">
+            <h3>Clarifying Questions for Tester</h3>
+            <ul id="out-questions" class="result-list"></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recorded Model Calls Log -->
+      <details id="telemetry-log-details" class="log-details">
+        <summary>Recorded Model Usage &amp; Timing Log (<span id="log-count">0</span> calls)</summary>
+        <div class="table-scroll log-scroll">
+          <table class="log-table">
+            <thead>
+              <tr>
+                <th>Time (UTC)</th>
+                <th>Model Version</th>
+                <th>Status</th>
+                <th>Model ms</th>
+                <th>Browser ms</th>
+                <th>Tokens (In / Out / Total)</th>
+                <th>Source</th>
+                <th>Goal</th>
+              </tr>
+            </thead>
+            <tbody id="telemetry-log-tbody"></tbody>
+          </table>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+# Secrets & environment
+.env
+.env.*
+!.env.example
+
+# Python bytecode & test caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Local runtime state & per-run browser artifacts
+storage/assistant.db
+storage/assistant.db-*
+storage/runs/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Local tooling (Claude/Antigravity bridge) and course material
+.agy/
+.mcp.json
+GenAI_Fall26_project.pdf

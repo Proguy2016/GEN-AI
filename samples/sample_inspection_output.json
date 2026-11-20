@@ -1,0 +1,148 @@
+{
+  "inspection_id": "insp_3db1a87cff7e",
+  "source_url": "https://webdriveruniversity.com/Login-Portal/index.html",
+  "final_url": "https://webdriveruniversity.com/Login-Portal/index.html",
+  "page_title": "WebDriver | Login Portal",
+  "scope_selector": "form",
+  "visible_only": true,
+  "created_at": "2026-11-20T20:22:10.622565+00:00",
+  "browser_duration_ms": 9962,
+  "screenshot_width": 1280,
+  "screenshot_height": 800,
+  "screenshot_relpath": "storage/runs/insp_3db1a87cff7e/screenshot.png",
+  "total_matched_elements": 3,
+  "elements": [
+    {
+      "element_id": "el_001",
+      "tag": "input",
+      "role": "textbox",
+      "input_type": "text",
+      "visible_text": "",
+      "accessible_label": "",
+      "placeholder": "Username",
+      "element_name": "",
+      "html_id": "text",
+      "data_testid": "",
+      "href": "",
+      "required": false,
+      "disabled": false,
+      "visible": true,
+      "bbox": {
+        "x": 515.0,
+        "y": 300.0,
+        "width": 250.0,
+        "height": 38.4
+      },
+      "recommended_locator": {
+        "strategy": "get_by_placeholder",
+        "expression": "page.get_by_placeholder(\"Username\", exact=True)",
+        "match_count": 1,
+        "is_unique": true
+      },
+      "candidate_locators": [
+        {
+          "strategy": "get_by_placeholder",
+          "expression": "page.get_by_placeholder(\"Username\", exact=True)",
+          "match_count": 1,
+          "is_unique": true
+        },
+        {
+          "strategy": "css_id",
+          "expression": "page.locator(\"#text\")",
+          "match_count": 1,
+          "is_unique": true
+        }
+      ]
+    },
+    {
+      "element_id": "el_002",
+      "tag": "input",
+      "role": "textbox",
+      "input_type": "password",
+      "visible_text": "",
+      "accessible_label": "",
+      "placeholder": "Password",
+      "element_name": "",
+      "html_id": "password",
+      "data_testid": "",
+      "href": "",
+      "required": false,
+      "disabled": false,
+      "visible": true,
+      "bbox": {
+        "x": 515.0,
+        "y": 348.4,
+        "width": 250.0,
+        "height": 38.4
+      },
+      "recommended_locator": {
+        "strategy": "get_by_placeholder",
+        "expression": "page.get_by_placeholder(\"Password\", exact=True)",
+        "match_count": 1,
+        "is_unique": true
+      },
+      "candidate_locators": [
+        {
+          "strategy": "get_by_placeholder",
+          "expression": "page.get_by_placeholder(\"Password\", exact=True)",
+          "match_count": 1,
+          "is_unique": true
+        },
+        {
+          "strategy": "css_id",
+          "expression": "page.locator(\"#password\")",
+          "match_count": 1,
+          "is_unique": true
+        }
+      ]
+    },
+    {
+      "element_id": "el_003",
+      "tag": "button",
+      "role": "button",
+      "input_type": "",
+      "visible_text": "Login",
+      "accessible_label": "",
+      "placeholder": "",
+      "element_name": "",
+      "html_id": "login-button",
+      "data_testid": "",
+      "href": "",
+      "required": false,
+      "disabled": false,
+      "visible": true,
+      "bbox": {
+        "x": 515.0,
+        "y": 396.8,
+        "width": 250.0,
+        "height": 40.8
+      },
+      "recommended_locator": {
+        "strategy": "get_by_role",
+        "expression": "page.get_by_role(\"button\", name=\"Login\", exact=True)",
+        "match_count": 1,
+        "is_unique": true
+      },
+      "candidate_locators": [
+        {
+          "strategy": "get_by_role",
+          "expression": "page.get_by_role(\"button\", name=\"Login\", exact=True)",
+          "match_count": 1,
+          "is_unique": true
+        },
+        {
+          "strategy": "get_by_text",
+          "expression": "page.get_by_text(\"Login\", exact=True)",
+          "match_count": 1,
+          "is_unique": true
+        },
+        {
+          "strategy": "css_id",
+          "expression": "page.locator(\"#login-button\")",
+          "match_count": 1,
+          "is_unique": true
+        }
+      ]
+    }
+  ]
+}
