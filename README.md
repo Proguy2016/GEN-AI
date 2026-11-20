@@ -50,8 +50,8 @@ Copy-Item .env.example .env
 Edit `.env` and fill in your **free-tier** Google AI Studio API key and active model ID:
 ```ini
 GEMINI_API_KEY=your_actual_free_tier_key
-LLM_MODEL=gemini-2.5-flash-lite
-ALLOWED_HOSTS=
+LLM_MODEL=gemini-3.5-flash-lite
+ALLOWED_HOSTS=webdriveruniversity.com,www.webdriveruniversity.com
 RUNNER_TIMEOUT_SEC=60
 BROWSER_SLOWMO_MS=0
 BROWSER_HOLD_MS=1200

@@ -24,3 +24,7 @@ Thumbs.db
 .agy/
 .mcp.json
 GenAI_Fall26_project.pdf
+
+# Archived local databases and runs
+storage/*.db
+storage/old_runs_*/

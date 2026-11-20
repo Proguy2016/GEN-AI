@@ -1,15 +1,15 @@
 {
-  "inspection_id": "insp_3db1a87cff7e",
+  "inspection_id": "insp_ce26a6a19cca",
   "source_url": "https://webdriveruniversity.com/Login-Portal/index.html",
   "final_url": "https://webdriveruniversity.com/Login-Portal/index.html",
   "page_title": "WebDriver | Login Portal",
   "scope_selector": "form",
   "visible_only": true,
-  "created_at": "2026-11-20T20:22:10.622565+00:00",
-  "browser_duration_ms": 9962,
+  "created_at": "2026-11-20T21:43:01.168952+00:00",
+  "browser_duration_ms": 10916,
   "screenshot_width": 1280,
   "screenshot_height": 800,
-  "screenshot_relpath": "storage/runs/insp_3db1a87cff7e/screenshot.png",
+  "screenshot_relpath": "storage/runs/insp_ce26a6a19cca/screenshot.png",
   "total_matched_elements": 3,
   "elements": [
     {

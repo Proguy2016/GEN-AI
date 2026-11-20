@@ -61,8 +61,8 @@ def load_settings() -> Settings:
 
     return Settings(
         gemini_api_key=os.getenv("GEMINI_API_KEY", "").strip(),
-        llm_model=os.getenv("LLM_MODEL", "gemini-2.5-flash-lite").strip()
-        or "gemini-2.5-flash-lite",
+        llm_model=os.getenv("LLM_MODEL", "gemini-3.5-flash-lite").strip()
+        or "gemini-3.5-flash-lite",
         allowed_hosts=allowed_hosts,
         runner_timeout_sec=int(os.getenv("RUNNER_TIMEOUT_SEC", "60")),
         browser_slowmo_ms=int(os.getenv("BROWSER_SLOWMO_MS", "0")),

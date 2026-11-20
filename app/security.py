@@ -134,11 +134,15 @@ def wrap_untrusted_page_data(
         "scope_selector": inspection.scope_selector or "(entire page)",
         "selected_elements": compact_elements,
     }
-    return (
-        "<observed_page_data>\n"
-        + json.dumps(payload, indent=2, ensure_ascii=False)
-        + "\n</observed_page_data>"
+    # Escape angle brackets inside the JSON so page text can never contain a literal
+    # "</observed_page_data>" and close the untrusted-data block early. JSON parsers
+    # read < / > back as < and >, so the data itself is unchanged.
+    body = (
+        json.dumps(payload, indent=2, ensure_ascii=False)
+        .replace("<", "\\u003c")
+        .replace(">", "\\u003e")
     )
+    return "<observed_page_data>\n" + body + "\n</observed_page_data>"
 
 
 def verify_grounded_element_ids(
